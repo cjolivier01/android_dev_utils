@@ -1,7 +1,21 @@
 #!/bin/sh
-umount /dev/sdb1
-echo "Writing system partition..."
-sudo dd if=../android-6.0.0_r26-arm/out/target/product/generic/system.img of=/dev/sdb2 bs=1M
-echo "Writing boot partition, kernel, and ramdisk..."
-cp -r ../android-6.0.0_r26-arm/device/rpi2/boot/* /media/BOOT/*
+cd $(dirname "$0")
+if [ ! -z "$1" ]; then
+	echo "Writing system partition..."
+	umolunt /dev/sdb2
+	sudo dd if=../android-rpi/out/target/product/generic/system.img of=/dev/sdb2 bs=1M || exit 1
+else
+	echo "Skipping writing system partition (use any command-line parameter to force system partition write)"
+fi
 
+
+echo "Building BOOT partition..."
+cp ../device_brcm_rpi2/boot/* /media/BOOT/ || exit 1
+echo "    Copying zImage to boot directory"
+cp ../android-rpi/kernel/rpi/arch/arm/boot/zImage /media/BOOT || exit 1
+echo "    Copying dtb to boot directory"
+cp ../android-rpi/kernel/rpi/arch/arm/boot/dts/bcm2709-rpi-2-b.dtb /media/BOOT/ || exit 1
+echo "    Copying ramdisk to boot directory"
+cp ../android-rpi/out/target/product/generic/ramdisk.img /media/BOOT/ || exit 1
+echo "Done."
+cd -
