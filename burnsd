@@ -1,2 +1,7 @@
 #!/bin/sh
+umount /dev/sdb1
+echo "Writing system partition..."
+sudo dd if=../android-6.0.0_r26-arm/out/target/product/generic/system.img of=/dev/sdb2 bs=1M
+echo "Writing boot partition, kernel, and ramdisk..."
+cp -r ../android-6.0.0_r26-arm/device/rpi2/boot/* /media/BOOT/*
 
